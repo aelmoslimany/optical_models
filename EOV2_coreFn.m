@@ -157,7 +157,7 @@ switch EO.Type
         gammaLoss = (1 - 10.0^(EO.LossPerRoundTripdB / 10.0)) / RoundTripTime;
         gammaTot = gammaKappa + gammaLoss;
         Vin = sum(EO.OmegaofVpnCoeff .* (Vin+EO.Vbias).^(1:length(EO.OmegaofVpnCoeff)),2);
-        [OpticalElectricFieldOut,~,~] = ringDynamicsWithHighPowerNonlinearityWithMEX_coreFn(Vin,Ts,2*pi*80e9,1,gammaTot,gammaKappa,selfHeat1stOrderPolesHz,selfHeat1stOrderGains,selfHeat2ndOrderPolesHz,selfHeat2bdOrderGains,EO.domegaobydAbsaSq,EO.domegaobydAbsaSqSq,EO.LaserPower,db2pow(-1*EO.ILTarget));
+        [OpticalElectricFieldOut,~,~] = ringDynamicsWithHighPowerNonlinearityWithoutMEX_coreFn(Vin,Ts,2*pi*80e9,1,gammaTot,gammaKappa,selfHeat1stOrderPolesHz,selfHeat1stOrderGains,selfHeat2ndOrderPolesHz,selfHeat2bdOrderGains,EO.domegaobydAbsaSq,EO.domegaobydAbsaSqSq,EO.LaserPower,db2pow(-1*EO.ILTarget));
 end
 
 
@@ -190,6 +190,10 @@ end
 
 
 end
+
+
+
+
 
 
 
