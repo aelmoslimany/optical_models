@@ -1,0 +1,25 @@
+function [phase,alpha_loss_E] = MZMPhaseShifterModel(l,Vt,lambda) %% Voltage : AC + bias
+v = Vt;
+temperature = 300.15; %Temperature (K)
+vbi_va =  0.825;%%built in voltage of pn junction
+m_va = 0.3;  %% grading coefficient (related to doping profile)
+capperl  =  295e-12; %%C/m
+ntotperl = 3.29e-9; %% maybe the intrinsic losses
+sig      = 31.24e9;%%fitting factor for losses
+eta      = 1.787e5;%%fitting factor for modulation efficiency
+co_mod=1;
+dtemp = 0;
+deltemp = temperature + dtemp - 298.15;
+cap = capperl*(1 + 0.0001*deltemp)*l*co_mod;%%co_mod-->corner effect
+ntot = ntotperl*(1 + 0.002*deltemp)*l*co_mod*co_mod;
+vbi_vat= vbi_va-0.0015*deltemp;
+mgrad = (1.0/m_va) - 2.0;
+qo = -((mgrad+2)/(mgrad+1))*exp(log(vbi_va)/(mgrad+2))*cap;
+qt = qo*exp(((mgrad+1)/(mgrad+2))*log(vbi_vat));
+qcap = zeros(size(v));
+index = v < vbi_vat;
+qcap(index) = qt*exp(((mgrad+1)/(mgrad+2))*log(1-v(index)/vbi_vat));
+phase = 2*pi*eta*qcap / (lambda + 1e-12);
+xlosste = sig*(ntot+qcap);
+alpha_loss_E = xlosste;
+end
