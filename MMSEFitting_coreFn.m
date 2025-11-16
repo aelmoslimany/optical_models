@@ -1,0 +1,28 @@
+function [filterTaps,NMSE] = MMSEFitting_coreFn(Vin,Vout,nTaps,Type,filterTapsInitial,nIter,stepSize)
+
+switch Type
+    case 'MMSE'
+        Y = hankel(Vin(1:nTaps),circshift(Vin.',-(nTaps-1)));
+        X = hankel(Vout(1:nTaps),circshift(Vout.',-(nTaps-1)));
+        C=Y*(Y');
+        T=X*(Y');
+        W=(T*pinv(C));
+        Xhat=W*Y;
+        MSE=mean(abs(X-Xhat).^2,2);
+        [NMSE,MSEInd]=min(MSE);
+        NMSE=NMSE./var(X(:,MSEInd));
+        filterTaps=circshift(flip(W(MSEInd,:)),-nTaps+MSEInd);
+
+    case 'GD'
+        filterTaps=filterTapsInitial;
+        for i=1:nIter
+            e=cconv(Vin,filterTaps,length(Vin))-Vout;
+            tmp=zeros(size(filterTaps));
+            for k=1:length(filterTaps)
+                tmp(k)=e.'*circshift(Vin,k-1);
+            end
+            filterTaps=filterTaps-2*stepSize*tmp/length(Vin);
+        end
+        NMSE=var(Vout-cconv(Vin,filterTaps,length(Vin)))./var(Vout);
+end
+end
